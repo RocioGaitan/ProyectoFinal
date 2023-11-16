@@ -1,0 +1,30 @@
+<h1>Registro en la web</h1>
+
+<form method="post" action="/api/sessions/register">
+
+    <label for="username">Username</label>
+    <input type="text" name="username" id="username">
+
+    <label for="email">Email</label>
+    <input type="email" name="email" id="email">
+
+    <label for="gender">Age</label>
+    <input type="number" name="age" id="age">
+
+    <label for="password">Password</label>
+    <input type="password" name="password" id="password">
+
+   <button type="submit">Register</button>
+    <span><a href="/login" target="_self">Register</a></span>
+   
+</form>
+
+{{#if registerFailed}}
+    <script type="text/javascript">
+        alert('Register Fallido!');
+    </script>
+{{/if}}
+
+ <script src="/socket.io/socket.io.js"></script>
+ <script src="/js/index.js"></script>
+
