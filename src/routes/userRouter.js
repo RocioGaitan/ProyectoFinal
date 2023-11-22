@@ -1,57 +1,32 @@
 import {Router} from 'express';
-import passport from 'passport';
-import local from 'passport-local';
+import jwt from 'jsonwebtoken';
+import { passportCall } from '../utils/authUtil.js';
+import { authorization } from '../middlewares/auth.js';
 
 const router = Router();
-const localStratergy = local.Strategy;
 
-router.post(
-    "/register",
-    passport.authenticate('register',{failureRedirect: '/api/sessions/failRegister'}),
-    (req, res) => {
-        res.send({
-            status: 'success',
-            message: 'User Registered'
+router.post('/login', (req, res) => {
+    const {email, password} = req.body;
+    if (!email || !password) {
+        return req.status(401).send({
+            status: 'Unauthorized'
         });
     }
-);
 
-router.get("/failRegister", (req, res) => {
-    console.log('Failded Stratergy');
-    res.send({
-        status: 'error',
-        message: 'Failed Register'
+    //firmar jwt
+    const token = jwt.sign({email, password, role: 'user'}, 'coderSecret', {expiresIn: '24h'});
+
+    res.cookie('coderCookieToken', token, {
+        maxAge: 60*60*1000
+    }).send({
+        status: 'success',
+        message: 'Logged in!'
     });
 });
 
-router.post(
-    "/login",
-    passport.authenticate('login',{failureRedirect: '/api/sessions/failLogin'}),
-    async (req, res) => {
-        if (!req.user) {
-            return res.status(400).send({status: "error", error: "Invalid credentials"});
-        }
-
-        req.session.user = {
-            first_name: req.user.first_name,
-            last_name: req.user.last_name,
-            email: req.user.email,
-            age: req.user.age
-        }
-
-        res.send({
-            status: 'success',
-            payload: req.user
-        });
-    }
-);
-
-router.get("/failLogin", (req, res) => {
-    console.log('Failded Stratergy');
-    res.send({
-        status: 'error',
-        message: 'Failed Login'
-    });
+//estrategia passport
+router.get('/current', passportCall('jwt'), authorization('user'), (req, res) => {
+    res.send(req.user);
 });
 
 export default router;

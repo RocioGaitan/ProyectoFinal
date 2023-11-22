@@ -1,13 +1,15 @@
 import 'dotenv/config';
 import express from 'express';
-import session from 'express-session';
+import cookieParser from 'cookie-parser';
+
 import mongoose from "mongoose";
 import mongoStore from 'connect-mongo';
 import handlebars from 'express-handlebars';
 import passport from 'passport';
 
 
-import sessionsRouter from './routes/sessionsRouter.js';
+//import sessionsRouter from './routes/sessionsRouter.js';
+import userRouter from './routes/userRouter.js';
 import viewsRouter from './routes/viewsRouter.js';
 import __dirname from './utils/constantsUtil.js';
 import initializePassport from './config/passportConfig.js';
@@ -18,6 +20,11 @@ const app = express();
 app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
+app.use(cookieParser());
+
+//passport 
+initializePassport();
+app.use(passport.initialize());
 
 //motor de plantillas handlebars
 app.engine('handlebars', handlebars.engine());
@@ -27,26 +34,13 @@ app.set('view engine', 'handlebars');
 const uri = 'mongodb+srv://rociogaitan98rg:pRPAqndZAM5ZizsC@cluster0.zcivoyu.mongodb.net/newproyect?retryWrites=true&w=majority';
 mongoose.connect(uri);
 
-//Session
-app.use(session(
-    {
-        store: mongoStore.create({
-            mongoUrl: uri,
-            //mongoOptions: { useUnifiedTopology: true },
-            ttl: 3000
-        }),
-        secret: 'secretPhrase',
-        resave: false,
-        saveUninitialized: false
-    }
-));
 
-initializePassport();
-app.use(passport.initialize());
-app.use(passport.session());
 
+
+
+//rutas
 app.use('/', viewsRouter);
-app.use('/api/sessions', sessionsRouter);
+app.use('/api/user', userRouter);
 
 const PORT = 8080;
 app.listen(PORT, () => {
