@@ -1,5 +1,64 @@
 import {Router} from 'express';
 import passport from 'passport';
+
+const router = Router();
+
+router.get('/current', (req, res, next) => {passport.authenticate('jwt', function(err, user, info) {
+   if (err) return next(err);
+   if(!user) {
+    return res.status(401).send({
+        error: info.message ? info.message : info.toString()
+    })
+   }
+
+   req.user = user;
+   next();
+}) (req, res, next)} , (req, res) => {
+    
+    res.send({
+        status: 'success',
+        payload: req.user
+    });
+}
+)
+
+router.get('/failLogin', (req, res) => {
+    res.send({
+        status: 'error',
+        message: 'Login fallido'
+    });
+});
+
+export default router;
+/*import RouterBase from "./router.js";
+import jwt from "jsonwebtoken";
+
+export default class SessionRouter extends RouterBase {
+  init() {
+    this.post('/login', ['PUBLIC'], (req, res) => {
+    
+    const {name, email, role} = req.body; //query params
+    //firmar token
+    const token = jwt.sign({name, email, role}, 'PasswordSecret');
+
+    res.sendSuccess(token);
+   });
+  }
+}*/
+
+
+
+
+
+
+
+
+
+
+
+
+/*import {Router} from 'express';
+import passport from 'passport';
 import userModel from '../models/userModel.js';
 
 const router = Router();
@@ -32,23 +91,4 @@ router.post("/register", async (req, res) => {
 
 
 
-export default router;
-
-
-/* Middleware de autenticación para proteger ciertas rutas
-const isAuthenticated = (req, res, next) => {
-    if (req.isAuthenticated()) {
-      return next();
-    }
-    res.redirect('/login'); 
-  };*/
-  
-
-
-/* Ruta protegida que requiere autenticación
-router.get("/profile", isAuthenticated, (req, res) => {
-    res.send({
-      user: req.session.user,
-      message: 'Profile page'
-    });
-  });*/
+export default router;*/

@@ -1,6 +1,8 @@
 import passport from 'passport';
 import jwt, { ExtractJwt } from 'passport-jwt';
 
+import { SECRET_JWT, KEY_COOKIE } from '../utils/constantsUtil.js';
+
 const JWTStratergy = jwt.Strategy;
 
 const initializatePassport = () => {
@@ -9,10 +11,11 @@ const initializatePassport = () => {
         new JWTStratergy(
             {
                 jwtFromRequest: ExtractJwt.fromExtractors([cookieExtractor]),
-                secretOrKey: 'coderSecret'
+                secretOrKey: SECRET_JWT
             },
             async (jwt_payload, done) => {
                 try {
+                    console.log(jwt_payload);
                     return done(null, jwt_payload);
                 } catch (err) {
                     return done(err);
@@ -25,7 +28,7 @@ const initializatePassport = () => {
 const cookieExtractor = (req) => {
     let token = null;
     if (req && req.cookies) {
-        token = req.cookies.coderCookieToken ?? null;
+        token = req.cookies[KEY_COOKIE] ?? null;
     }
 
     return token;
